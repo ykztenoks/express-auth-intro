@@ -11,7 +11,7 @@
 
     <label>
       Email
-      <input type="email" name="email" placeholder="rockstar@ironhack.com" />
+      <input type="text" name="email" placeholder="rockstar@ironhack.com" />
     </label>
 
     <label>
@@ -22,5 +22,9 @@
     <button type="submit">Create account</button>
 
     {{! error message will be added here }}
+
+    {{#if errorMessage}}
+      <p class="error">{{errorMessage}}</p>
+    {{/if}}
   </form>
 </div>
