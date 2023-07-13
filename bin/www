@@ -33,7 +33,7 @@ server.on("error", onError);
 server.on("listening", onListening);
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/express-auth")
+  .connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/express-auth")
   .then((connection) =>
     console.log("connected to " + connection.connection.name)
   )
