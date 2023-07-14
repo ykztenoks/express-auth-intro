@@ -20,16 +20,16 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
-  const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-  if (!regex.test(password)) {
-    res
-      .status(500)
-      .render("auth/signup", {
-        errorMessage:
-          "Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.",
-      });
-    return;
-  }
+  // const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+  // if (!regex.test(password)) {
+  //   res
+  //     .status(500)
+  //     .render("auth/signup", {
+  //       errorMessage:
+  //         "Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.",
+  //     });
+  //   return;
+  // }
 
   bcrypt
     .genSalt(salt)
@@ -59,7 +59,53 @@ router.post("/signup", (req, res, next) => {
 });
 
 router.get("/userProfile", (req, res) => {
-  res.render("users/user-profile.hbs");
+
+  res.render('users/user-profile.hbs', { userInSession: req.session.user });
+
+});
+
+router.get('/login', (req, res, next) => {
+  res.render('auth/login.hbs')
+})
+
+router.post('/login', (req, res, next) => {
+  console.log('SESSION =====> ', req.session);
+  const { email, password } = req.body;
+ 
+  if (email === '' || password === '') {
+    res.render('auth/login.hbs', {
+      errorMessage: 'Please enter both, email and password to login.'
+    });
+    return;
+  }
+ 
+  User.findOne({ email })
+    .then(user => {
+      if (!user) {
+        console.log("Email not registered. ");
+        res.render('auth/login', { errorMessage: 'User not found and/or incorrect password.' });
+        return;
+      } else if (
+        bcrypt.compareSync(password, user.passwordHash)) {
+        
+        req.session.user = user  
+
+        console.log("Sessions after login:", req.session)
+
+        res.redirect('/auth/userProfile')
+      } else {
+        console.log("Incorrect password. ");
+        res.render('auth/login', { errorMessage: 'User not found and/or incorrect password.' });
+      }
+    })
+    .catch(error => next(error));
+});
+
+router.post('/logout', (req, res, next) => {
+  req.session.destroy(err => {
+    if (err) next(err);
+    res.redirect('/auth/login');
+  });
 });
 
 module.exports = router;
