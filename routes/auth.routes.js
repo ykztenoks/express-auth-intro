@@ -5,7 +5,9 @@ const bcrypt = require("bcryptjs");
 const router = new Router();
 const salt = 12;
 
-router.get("/signup", (req, res) => {
+const { isLoggedIn, isLoggedOut } = require('../middleware/route-guard');
+
+router.get("/signup", isLoggedOut, (req, res) => {
   res.render("auth/signup.hbs");
 });
 
@@ -58,7 +60,7 @@ router.post("/signup", (req, res, next) => {
     });
 });
 
-router.get("/userProfile", (req, res) => {
+router.get("/userProfile", isLoggedIn, (req, res) => {
 
   res.render('users/user-profile.hbs', { userInSession: req.session.user });
 
